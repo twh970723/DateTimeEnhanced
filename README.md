@@ -1,7 +1,5 @@
 # DateTimeEnhanced
 
-# DateTimeEnhanced
-
 `DateTimeEnhanced` is a lightweight Python helper for working with dates and times. It lets you:
 
 - choose the start of the week (`"sunday"`, `"monday"`, or `"iso"`).
