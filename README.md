@@ -32,7 +32,7 @@ Sets the date to a past point, n weeks before today.
 Returns a string with requested date/time components joined by the provided separator.
 
 Arguments:
-info_sequence: List containing any of "default", "date", "time", "day", "week_day"
+info_sequence: List containing any of "default", "date", "time", "day", "year", "week_day"
 info_separator: String used to join the elements
 ```
 #### get_output_raw(info_sequence: list[str]) -> dict
@@ -40,7 +40,7 @@ info_separator: String used to join the elements
 Returns a dictionary of raw Python objects for the requested components.
 
 Arguments:
-info_sequence: List containing any of "default", "date", "time", "day", "week_day"
+info_sequence: List containing any of "default", "date", "time", "day", "year", "week_day"
 ```
 ## Usage
 ```bash
