@@ -1,5 +1,6 @@
 import datetime
 from typing import Literal
+from dateutil.relativedelta import relativedelta
 
 _first_day_of_week_option = Literal["sunday", "monday", "iso"]
 _info_sequence = list[Literal["default", "date", "time", "day", "month", "year", "week"]]
@@ -46,6 +47,9 @@ class DateTimeEnhanced:
 
     def last_n_week(self, last_n_week: int, first_day_of_week: _first_day_of_week_option, all_integer: bool):
         self.set_value(datetime.datetime.today() - datetime.timedelta(weeks=last_n_week), first_day_of_week, all_integer=all_integer)
+
+    def last_n_month(self, last_n_month: int, first_day_of_week: _first_day_of_week_option, all_integer: bool):
+        self.set_value(datetime.datetime.today() - relativedelta(months=last_n_month), first_day_of_week, all_integer=all_integer)
 
     def get_output_str(self, info_sequence: _info_sequence, info_separator: str):
         info_data = {
