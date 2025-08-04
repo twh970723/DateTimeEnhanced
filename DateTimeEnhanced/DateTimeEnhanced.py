@@ -2,50 +2,71 @@ import datetime
 from typing import Literal
 
 _first_day_of_week_option = Literal["sunday", "monday", "iso"]
-_info_sequence = list[Literal["default", "date", "time", "day", "year", "week_day"]]
+_info_sequence = list[Literal["default", "date", "time", "day", "month", "year", "week"]]
 
 
 class DateTimeEnhanced:
     def __init__(self):
-        self.__date: str = ""
-        self.__time: str = ""
-        self.__day: str = ""
-        self.__year: str = ""
-        self.__week_day: str = ""
-        self.__default: str = ""
+        self._default: str = ""
+        self._date: str = ""
+        self._time: str = ""
+        self._day: str = ""
+        self._month: str = ""
+        self._year: str = ""
+        self._week: str = ""
 
-    def set_value(self, date_time: datetime.datetime, first_day_of_week: _first_day_of_week_option):
-        self.__date = date_time.strftime("%Y-%m-%d")
-        self.__time = date_time.strftime("%H:%M:%S.%f")
-        self.__day = date_time.strftime("%A")
-        self.__year = date_time.strftime("%Y")
-        self.__week_day = {
-            "sunday": f"{int(date_time.strftime('%U')) + 1}.{(date_time.weekday() + 1) % 7}",
-            "monday": f"{int(date_time.strftime('%W')) + 1}.{date_time.weekday()}",
+    @staticmethod
+    def _try_cast_to_int(value):
+        if isinstance(value, str) and value.isdigit():
+            return int(value)
+        return value
+
+    def set_value(self, date_time: datetime.datetime, first_day_of_week: _first_day_of_week_option, all_integer: bool):
+        self._default = str(date_time)
+        self._date = date_time.strftime("%Y-%m-%d")
+        self._time = date_time.strftime("%H:%M:%S.%f")
+        self._day = {
+            "sunday": f"{(date_time.weekday() + 1) % 7}",
+            "monday": f"{date_time.weekday()}",
+            "iso": f"{date_time.isocalendar().weekday}"
+        }.get(first_day_of_week) if all_integer else date_time.strftime("%A")
+        self._month = date_time.strftime("%m") if all_integer else date_time.strftime("%B")
+        self._year = date_time.strftime("%Y")
+        self._week = {
+            "sunday": f"{int(date_time.strftime('%U')) + 1}",
+            "monday": f"{int(date_time.strftime('%W')) + 1}",
             "iso": f"{date_time.isocalendar().week}.{date_time.isocalendar().weekday}"
         }.get(first_day_of_week)
-        self.__default = str(date_time)
 
-    def today(self, first_day_of_week: _first_day_of_week_option):
-        self.set_value(datetime.datetime.today(), first_day_of_week)
+    def today(self, first_day_of_week: _first_day_of_week_option, all_integer: bool):
+        self.set_value(datetime.datetime.today(), first_day_of_week, all_integer=all_integer)
 
-    def last_n_day(self, last_n_day: int, first_day_of_week: _first_day_of_week_option):
-        self.set_value(datetime.datetime.today() - datetime.timedelta(days=last_n_day), first_day_of_week)
+    def last_n_day(self, last_n_day: int, first_day_of_week: _first_day_of_week_option, all_integer: bool):
+        self.set_value(datetime.datetime.today() - datetime.timedelta(days=last_n_day), first_day_of_week, all_integer=all_integer)
 
-    def last_n_week(self, last_n_week: int, first_day_of_week: _first_day_of_week_option):
-        self.set_value(datetime.datetime.today() - datetime.timedelta(weeks=last_n_week), first_day_of_week)
+    def last_n_week(self, last_n_week: int, first_day_of_week: _first_day_of_week_option, all_integer: bool):
+        self.set_value(datetime.datetime.today() - datetime.timedelta(weeks=last_n_week), first_day_of_week, all_integer=all_integer)
 
     def get_output_str(self, info_sequence: _info_sequence, info_separator: str):
-        info_data = {"default": self.__default, "date": self.__date, "time": self.__time, "day": self.__day, "year": self.__year, "week_day": self.__week_day}
+        info_data = {
+            "default": self._default,
+            "date": self._date,
+            "time": self._time,
+            "day": self._day,
+            "month": self._month,
+            "year": self._year,
+            "week": self._week
+        }
         return info_separator.join({key: info_data[key] for key in info_sequence if key in info_data}.values())
 
     def get_output_raw(self, info_sequence: _info_sequence):
         info_data = {
-            "default": datetime.datetime.fromisoformat(self.__default),
-            "date": datetime.date.fromisoformat(self.__date),
-            "time": datetime.time.fromisoformat(self.__time),
-            "day": self.__day,
-            "year": self.__year,
-            "week_day": self.__week_day
+            "default": datetime.datetime.fromisoformat(self._default),
+            "date": datetime.date.fromisoformat(self._date),
+            "time": datetime.time.fromisoformat(self._time),
+            "day": self._try_cast_to_int(self._day),
+            "month": self._try_cast_to_int(self._month),
+            "year": self._try_cast_to_int(self._year),
+            "week": self._try_cast_to_int(self._week)
         }
         return {key: info_data[key] for key in info_sequence if key in info_data}
